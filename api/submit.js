@@ -9,12 +9,13 @@ export const config = {
   },
 };
 
+// ⚠️ COLE AQUI A URL DA IMPLANTAÇÃO ATIVA DO APPS SCRIPT (termina em /exec)
 const APPS_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbwq7KhJXK3_yM-EMd0yLMiZByT2uL13b34Z0TJbV9D8QeDUQE3kHD75EsDK49AIVbDp/exec';
+  'https://script.google.com/macros/s/AKfycbxWkx5Naw7OZPTtVG06thdWrge9kLCw-N2drMCU4aqx3B-YR9Ku2P15bzD9tN_2xYPM/exec';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
   const body = JSON.stringify(req.body);
@@ -28,32 +29,48 @@ export default async function handler(req, res) {
       redirect: 'manual',
     });
 
-    let finalResponse;
+    let finalResponse = r1;
 
     if (r1.status === 302 || r1.status === 301) {
-      // Segue o redirect manualmente preservando o POST e o body
       const location = r1.headers.get('location');
       if (!location) throw new Error('Redirect sem Location header');
 
-      const r2 = await fetch(location, {
+      finalResponse = await fetch(location, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body,
       });
-      finalResponse = r2;
-    } else {
-      finalResponse = r1;
     }
 
     const text = await finalResponse.text();
 
-    // Tenta parsear como JSON; se falhar, retorna sucesso genérico
+    // O Apps Script DEVE responder JSON. Se veio HTML, a implantação está
+    // inválida/arquivada ou sem permissão pública — nunca mascarar como sucesso.
+    let json;
     try {
-      const json = JSON.parse(text);
-      return res.status(200).json(json);
+      json = JSON.parse(text);
     } catch {
-      return res.status(200).json({ success: true, raw: text });
+      const isHtml = /^\s*<(!doctype|html)/i.test(text);
+      const titulo = (text.match(/<title>(.*?)<\/title>/i) || [])[1] || '';
+
+      let motivo = 'O Apps Script respondeu algo que não é JSON.';
+      if (/not found/i.test(titulo)) {
+        motivo =
+          'A URL do Apps Script não existe (Page Not Found). Reimplante o Web App e atualize a URL em api/submit.js.';
+      } else if (/sign in|login|autoriza/i.test(text)) {
+        motivo =
+          'O Apps Script está pedindo login. Reimplante com "Quem pode acessar: Qualquer pessoa".';
+      }
+
+      return res.status(502).json({
+        success: false,
+        error: motivo,
+        debug: { httpStatus: finalResponse.status, isHtml, titulo, preview: text.slice(0, 300) },
+      });
     }
+
+    // Repassa a resposta real do Apps Script (inclusive success:false)
+    return res.status(json.success === false ? 502 : 200).json(json);
   } catch (err) {
     console.error('Proxy error:', err);
     return res.status(500).json({ success: false, error: err.message });

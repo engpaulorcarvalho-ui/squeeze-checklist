@@ -856,15 +856,20 @@ async function handleSubmit() {
   showOverlay('overlayLoading');
 
   try {
-    const form = new FormData();
-    form.append('payload', JSON.stringify(payload));
-    await fetch(APPS_SCRIPT_URL, {
+    const resp = await fetch('/api/submit', {
       method: 'POST',
-      mode: 'no-cors',
-      body: form,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
+    const result = await resp.json();
     hideOverlay('overlayLoading');
-    showOverlay('overlaySuccess');
+    if (result.success) {
+      showOverlay('overlaySuccess');
+    } else {
+      document.getElementById('errorMsg').textContent = result.error || 'Erro desconhecido. Tente novamente.';
+      showOverlay('overlayError');
+      document.getElementById('submitBtn').disabled = false;
+    }
   } catch (err) {
     hideOverlay('overlayLoading');
     document.getElementById('errorMsg').textContent = 'Sem conexão com a internet. Tente novamente.';

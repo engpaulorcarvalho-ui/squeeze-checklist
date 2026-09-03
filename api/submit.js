@@ -1,5 +1,10 @@
-// Vercel serverless proxy — contorna o redirect 302 do Google Apps Script
-// O browser perde o body ao seguir o redirect; aqui fazemos isso no servidor.
+// Vercel serverless proxy → Google Apps Script
+//
+// Por que existe: o Apps Script responde 302 para script.googleusercontent.com.
+// O doPost JÁ EXECUTOU nesse ponto; o redirect só serve o resultado, e aquele
+// endereço final aceita apenas GET (POST retorna 405).
+// O fetch padrão (redirect: 'follow') faz exatamente isso: converte 302+POST
+// em GET automaticamente. Por isso NÃO usamos redirect: 'manual' aqui.
 
 export const config = {
   api: {
@@ -9,7 +14,7 @@ export const config = {
   },
 };
 
-// ⚠️ COLE AQUI A URL DA IMPLANTAÇÃO ATIVA DO APPS SCRIPT (termina em /exec)
+// URL da implantação ativa do Apps Script (termina em /exec)
 const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbxWkx5Naw7OZPTtVG06thdWrge9kLCw-N2drMCU4aqx3B-YR9Ku2P15bzD9tN_2xYPM/exec';
 
@@ -18,39 +23,23 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  const body = JSON.stringify(req.body);
-
   try {
-    // 1ª requisição: recebe o 302 sem seguir automaticamente
-    const r1 = await fetch(APPS_SCRIPT_URL, {
+    const body = JSON.stringify(req.body);
+
+    const resposta = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body,
-      redirect: 'manual',
+      // redirect: 'follow' é o padrão — necessário para o Apps Script
     });
 
-    let finalResponse = r1;
+    const text = await resposta.text();
 
-    if (r1.status === 302 || r1.status === 301) {
-      const location = r1.headers.get('location');
-      if (!location) throw new Error('Redirect sem Location header');
-
-      finalResponse = await fetch(location, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body,
-      });
-    }
-
-    const text = await finalResponse.text();
-
-    // O Apps Script DEVE responder JSON. Se veio HTML, a implantação está
-    // inválida/arquivada ou sem permissão pública — nunca mascarar como sucesso.
+    // O Apps Script deve responder JSON. HTML = implantação inválida ou sem permissão.
     let json;
     try {
       json = JSON.parse(text);
     } catch {
-      const isHtml = /^\s*<(!doctype|html)/i.test(text);
       const titulo = (text.match(/<title>(.*?)<\/title>/i) || [])[1] || '';
 
       let motivo = 'O Apps Script respondeu algo que não é JSON.';
@@ -65,7 +54,7 @@ export default async function handler(req, res) {
       return res.status(502).json({
         success: false,
         error: motivo,
-        debug: { httpStatus: finalResponse.status, isHtml, titulo, preview: text.slice(0, 300) },
+        debug: { httpStatus: resposta.status, titulo, preview: text.slice(0, 300) },
       });
     }
 

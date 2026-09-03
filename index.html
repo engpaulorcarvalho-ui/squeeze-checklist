@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Checklist Fechamento — Squeeze Burger</title>
+  <style>
+    :root {
+      --orange: #CC6600;
+      --orange-hover: #b85c00;
+      --bg: #111111;
+      --card: #1c1c1c;
+      --card2: #242424;
+      --border: #2e2e2e;
+      --text: #f0f0f0;
+      --muted: #777;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--orange);
+      padding: 16px 20px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .header h1 { font-size: 1.15rem; font-weight: 700; color: #fff; }
+    .header-badge {
+      background: rgba(0,0,0,0.22);
+      color: rgba(255,255,255,0.95);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .header-date { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-bottom: 9px; }
+    .progress-track { background: rgba(0,0,0,0.25); border-radius: 4px; height: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #fff; border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+
+    /* ── CONTENT ── */
+    .content { padding: 14px; max-width: 720px; margin: 0 auto; }
+
+    /* ── PERSON PICKER ── */
+    .person-card {
+      background: var(--card);
+      border: 2px solid var(--orange);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .person-card label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+    .person-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 480px) {
+      .person-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .person-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 6px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--card2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .person-btn:active { opacity: 0.7; }
+    .person-btn.selected {
+      border-color: var(--orange);
+      background: rgba(204,102,0,0.15);
+    }
+    .person-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--muted);
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .person-btn.selected .person-avatar {
+      background: var(--orange);
+      color: #fff;
+    }
+    .person-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      transition: color 0.15s;
+      line-height: 1.2;
+    }
+    .person-btn.selected .person-name { color: var(--text); }
+
+    /* ── SECTION ── */
+    .section { background: var(--card); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+    .section-header {
+      background: var(--card2);
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title { font-size: 0.95rem; font-weight: 600; }
+    .section-pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--border);
+      padding: 3px 9px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .section-pill.done { background: var(--success); color: #fff; }
+
+    /* ── ITEM ── */
+    .item {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.12s;
+      min-height: 54px;
+      user-select: none;
+    }
+    .item:active { background: #2a2a2a; }
+    .chk {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      border: 2px solid #444;
+      flex-shrink: 0;
+      margin-right: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s;
+    }
+    .chk svg { display: none; }
+    .item.checked .chk { background: var(--success); border-color: var(--success); }
+    .item.checked .chk svg { display: block; }
+    .item-text { font-size: 0.92rem; line-height: 1.4; flex: 1; transition: color 0.15s; }
+    .item.checked .item-text { color: var(--muted); text-decoration: line-through; }
+
+    /* ── PHOTO AREA ── */
+    .photo-area {
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+    .photo-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .photo-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      flex: 1;
+    }
+    .photo-count {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--border);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .photo-count.ok { background: var(--success); color: #fff; }
+    .photo-count.warn { background: var(--warn); color: #fff; }
+    .photo-add-btn {
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .photo-add-btn:active { opacity: 0.8; }
+    input[type="file"] { display: none; }
+
+    .photo-thumbs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .photo-thumbs::-webkit-scrollbar { display: none; }
+    .thumb-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .thumb-wrap img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      display: block;
+    }
+    .thumb-remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── CONTAGEM ── */
+    .count-card { background: var(--card); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+    .count-card .count-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+    .count-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .count-row:last-child { margin-bottom: 0; }
+    .count-row label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .count-input {
+      width: 110px;
+      background: var(--card2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 10px;
+      outline: none;
+      font-family: inherit;
+    }
+    .count-input:focus { border-color: var(--orange); }
+    .count-input.missing { border-color: var(--danger); }
+
+    /* ── OBSERVATIONS ── */
+    .obs-card { background: var(--card); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+    .obs-card label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .obs-card textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      min-height: 72px;
+      line-height: 1.5;
+    }
+    .obs-card textarea::placeholder { color: var(--muted); }
+
+    /* ── BOTTOM BAR ── */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px 16px;
+      background: #161616;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .progress-text { flex: 1; font-size: 0.85rem; color: var(--muted); }
+    .progress-text strong { color: var(--orange); font-size: 1.05rem; }
+    .submit-btn {
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      padding: 13px 26px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .submit-btn:hover { background: var(--orange-hover); }
+    .submit-btn:disabled { background: #333; color: var(--muted); cursor: not-allowed; }
+
+    /* ── OVERLAYS ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 24px;
+    }
+    .overlay.active { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px 22px;
+      text-align: center;
+      width: 100%;
+      max-width: 340px;
+    }
+    .modal .ico { font-size: 2.8rem; margin-bottom: 12px; line-height: 1; }
+    .modal h2 { font-size: 1.2rem; margin-bottom: 8px; }
+    .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
+    .modal-btn {
+      display: block;
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      padding: 13px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .modal-btn:last-child { margin-bottom: 0; }
+    .modal-btn.secondary { background: #2e2e2e; color: var(--text); }
+
+    .spinner {
+      width: 42px; height: 42px;
+      border: 4px solid #333;
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-steps {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <h1>🔒 Checklist de Fechamento</h1>
+    <span class="header-badge" id="badge">0/38</span>
+  </div>
+  <div class="header-date" id="datetime"></div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- PERSON PICKER -->
+  <div class="person-card">
+    <label>👤 Quem está fazendo o fechamento?</label>
+    <div class="person-grid" id="personGrid"></div>
+  </div>
+
+  <!-- SECTIONS -->
+  <div id="sections"></div>
+
+  <!-- CONTAGEM OBRIGATÓRIA -->
+  <div class="count-card">
+    <div class="count-title">🔢 Contagem obrigatória</div>
+    <div class="count-row">
+      <label>🍞 Pão</label>
+      <input type="number" id="countPao" class="count-input" placeholder="0" min="0">
+    </div>
+    <div class="count-row">
+      <label>🥩 Carne</label>
+      <input type="number" id="countCarne" class="count-input" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <!-- OBSERVATIONS -->
+  <div class="obs-card">
+    <label>📝 Observações gerais</label>
+    <textarea id="observations" placeholder="Pendências, problemas com equipamentos, falta de estoque..."></textarea>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="progress-text">
+    <strong id="countDone">0</strong><span id="countTotal"> / 38 itens</span>
+  </div>
+  <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Finalizar ✓</button>
+</div>
+
+<!-- LOADING -->
+<div class="overlay" id="overlayLoading">
+  <div class="modal">
+    <div class="spinner"></div>
+    <h2>Enviando...</h2>
+    <p id="loadingMsg">Salvando na planilha e enviando resumo no WhatsApp</p>
+    <div class="progress-steps" id="loadingSteps"></div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="overlay" id="overlaySuccess">
+  <div class="modal">
+    <div class="ico">✅</div>
+    <h2>Fechamento registrado!</h2>
+    <p>Fotos salvas no Drive. Resumo enviado no WhatsApp para Paulo e Gabriel. Bom descanso! 🍔</p>
+    <button class="modal-btn" onclick="resetApp()">Novo checklist</button>
+  </div>
+</div>
+
+<!-- ERROR -->
+<div class="overlay" id="overlayError">
+  <div class="modal">
+    <div class="ico">⚠️</div>
+    <h2>Erro ao enviar</h2>
+    <p id="errorMsg">Verifique a internet e tente novamente.</p>
+    <button class="modal-btn" onclick="closeError()">Tentar novamente</button>
+    <button class="modal-btn secondary" onclick="forceSuccess()">Registrar sem enviar</button>
+  </div>
+</div>
+
+<script>
+// ─── CONFIGURAÇÃO ────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLBWFiiCsQDGYxAHU2W_-73UU0XrGWRYLrw5q2Pw-KAYkbl1XwIEeMBpa3dGkfQLj-/exec';
+const MIN_PHOTOS = 2;
+
+// ─── PESSOAS ─────────────────────────────────────────────────────
+const PEOPLE = [
+  { name: 'Erick',   initials: 'Er' },
+  { name: 'Géssica', initials: 'Gé' },
+  { name: 'Juliana', initials: 'Ju' },
+  { name: 'Isaias',  initials: 'Is' },
+  { name: 'André',   initials: 'An' },
+  { name: 'Bruno',   initials: 'Br' },
+  { name: 'Paulo',   initials: 'Pa' },
+  { name: 'Gabriel', initials: 'Ga' },
+];
+
+// ─── CHECKLIST ───────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    icon: '🍔', title: 'Equipamentos e Produção',
+    items: [
+      'Chapa desligada e devidamente limpa',
+      'Fritadeira desligada',
+      'Óleo verificado',
+      'Equipamentos desligados corretamente',
+      'Geladeiras e freezers fechados e funcionando',
+      'Produtos armazenados corretamente',
+      'Todos os produtos abertos identificados com data e validade',
+      'Carnes e demais insumos devidamente armazenados',
+    ]
+  },
+  {
+    icon: '🧼', title: 'Limpeza',
+    items: [
+      'Limpeza completa da cozinha (com água, vassoura e produto de limpeza)',
+      'Chapa completamente limpa',
+      'Fritadeiras limpas externamente',
+      'Bancadas higienizadas',
+      'Tábuas e utensílios lavados e guardados',
+      'Cubas e recipientes lavados',
+      'Pia limpa',
+      'Ralos limpos',
+      'Lixeiras higienizadas e lixo retirado',
+    ]
+  },
+  {
+    icon: '📦', title: 'Estoque e Abastecimento',
+    items: [
+      'Contagem de carne e pão',
+      'Verificar necessidade de insumos para o dia seguinte',
+      'Verificar necessidade de descartáveis para o dia seguinte',
+      'Abastecimento das expositoras (salão, cozinha e estoque)',
+      'Ingredientes organizados nas geladeiras',
+      'Produtos organizados seguindo o sistema PVPS (primeiro que vence, primeiro que sai)',
+      'Embalagens organizadas',
+      'Molhos e insumos armazenados corretamente',
+      'Verificar se existe algum produto próximo do vencimento',
+      'Informar produtos em falta ou com estoque baixo',
+    ]
+  },
+  {
+    icon: '🔥', title: 'Fechamento e Segurança',
+    items: [
+      'Conferir o fechamento do gás',
+      'Torneiras fechadas',
+      'Desligar as luzes',
+      'Conferir se todos os equipamentos foram desligados',
+      'Nenhum alimento ficou exposto fora da refrigeração',
+      'Cozinha organizada para o início do próximo turno',
+      'Fechar todos os cadeados e portas',
+      'Conferir se todas as portas e acessos estão devidamente fechados',
+    ]
+  },
+  {
+    icon: '📋', title: 'Conferência Final',
+    minPhotos: 0,
+    photoLabel: '📱 Print do WhatsApp (opcional)',
+    items: [
+      'Pendências comunicadas ao responsável',
+      'Estoque baixo informado',
+      'Problemas com equipamentos informados',
+    ]
+  },
+];
+
+const TOTAL = SECTIONS.reduce((s, sec) => s + sec.items.length, 0);
+
+// ─── ESTADO ──────────────────────────────────────────────────────
+let selectedPerson = null;
+let checked = {};
+let sectionPhotos = {}; // sIdx → [base64, ...]
+
+// ─── INIT ─────────────────────────────────────────────────────────
+function init() {
+  SECTIONS.forEach((_, i) => { sectionPhotos[i] = []; });
+  updateDateTime();
+  setInterval(updateDateTime, 60000);
+  renderPersonPicker();
+  renderSections();
+  updateProgress();
+}
+
+function updateDateTime() {
+  const now = new Date();
+  const d = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  const t = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('datetime').textContent = `${d}  •  ${t}`;
+}
+
+// ─── PERSON PICKER ────────────────────────────────────────────────
+function renderPersonPicker() {
+  const grid = document.getElementById('personGrid');
+  grid.innerHTML = PEOPLE.map((p, i) => `
+    <button class="person-btn${selectedPerson === p.name ? ' selected' : ''}"
+            onclick="selectPerson('${p.name}')">
+      <div class="person-avatar">${p.initials}</div>
+      <div class="person-name">${p.name}</div>
+    </button>
+  `).join('');
+}
+
+function selectPerson(name) {
+  selectedPerson = name;
+  renderPersonPicker();
+}
+
+// ─── SECTIONS ─────────────────────────────────────────────────────
+function renderSections() {
+  const container = document.getElementById('sections');
+  container.innerHTML = '';
+
+  SECTIONS.forEach((sec, sIdx) => {
+    const div = document.createElement('div');
+    div.className = 'section';
+
+    const doneCount = sec.items.filter((_, iIdx) => checked[`${sIdx}-${iIdx}`]).length;
+    const allDone = doneCount === sec.items.length;
+
+    const items = sec.items.map((label, iIdx) => {
+      const key = `${sIdx}-${iIdx}`;
+      return `
+        <div class="item${checked[key] ? ' checked' : ''}" id="item-${key}" onclick="toggleItem(${sIdx},${iIdx})">
+          <div class="chk">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="item-text">${label}</div>
+        </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="section-header">
+        <div class="section-title">${sec.icon} ${sec.title}</div>
+        <div class="section-pill${allDone ? ' done' : ''}" id="pill-${sIdx}">${doneCount}/${sec.items.length}</div>
+      </div>
+      ${items}
+      <div class="photo-area" id="photoArea-${sIdx}">
+        <div class="photo-bar">
+          <div class="photo-label">${sec.photoLabel || '📷 Fotos de evidência'}</div>
+          <div class="photo-count" id="photoCount-${sIdx}">${sec.minPhotos === 0 ? 'opcional' : `0/${sec.minPhotos ?? MIN_PHOTOS} mín.`}</div>
+          <button class="photo-add-btn" onclick="triggerPhotoInput(${sIdx})">+ Foto</button>
+          <input type="file" id="photoInput-${sIdx}" accept="image/*" capture="environment"
+                 onchange="handlePhotoInput(event, ${sIdx})">
+        </div>
+        <div class="photo-thumbs" id="photoThumbs-${sIdx}"></div>
+      </div>
+    `;
+    container.appendChild(div);
+    updatePhotoCount(sIdx);
+  });
+}
+
+// ─── TOGGLE ITEM ──────────────────────────────────────────────────
+function toggleItem(sIdx, iIdx) {
+  const key = `${sIdx}-${iIdx}`;
+  checked[key] = !checked[key];
+
+  const itemEl = document.getElementById(`item-${key}`);
+  itemEl.classList.toggle('checked', checked[key]);
+
+  const sec = SECTIONS[sIdx];
+  const doneCount = sec.items.filter((_, i) => checked[`${sIdx}-${i}`]).length;
+  const pill = document.getElementById(`pill-${sIdx}`);
+  pill.textContent = `${doneCount}/${sec.items.length}`;
+  pill.classList.toggle('done', doneCount === sec.items.length);
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.values(checked).filter(Boolean).length;
+  document.getElementById('countDone').textContent = done;
+  document.getElementById('badge').textContent = `${done}/${TOTAL}`;
+  document.getElementById('progressFill').style.width = `${(done / TOTAL) * 100}%`;
+}
+
+// ─── FOTOS ────────────────────────────────────────────────────────
+function triggerPhotoInput(sIdx) {
+  document.getElementById(`photoInput-${sIdx}`).click();
+}
+
+async function handlePhotoInput(event, sIdx) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+
+  for (const file of files) {
+    try {
+      const compressed = await compressImage(file);
+      sectionPhotos[sIdx].push(compressed);
+    } catch (e) {
+      console.error('Erro ao comprimir foto:', e);
+    }
+  }
+
+  // Reset input so same file can be added again if needed
+  event.target.value = '';
+  renderThumbs(sIdx);
+  updatePhotoCount(sIdx);
+}
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const MAX = 900;
+      let w = img.width, h = img.height;
+
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round((h / w) * MAX); w = MAX; }
+        else        { w = Math.round((w / h) * MAX); h = MAX; }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.72));
+    };
+
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Falha ao carregar imagem')); };
+    img.src = url;
+  });
+}
+
+function renderThumbs(sIdx) {
+  const container = document.getElementById(`photoThumbs-${sIdx}`);
+  container.innerHTML = sectionPhotos[sIdx].map((src, i) => `
+    <div class="thumb-wrap">
+      <img src="${src}" alt="Foto ${i+1}">
+      <button class="thumb-remove" onclick="removePhoto(${sIdx}, ${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removePhoto(sIdx, photoIdx) {
+  sectionPhotos[sIdx].splice(photoIdx, 1);
+  renderThumbs(sIdx);
+  updatePhotoCount(sIdx);
+}
+
+function updatePhotoCount(sIdx) {
+  const count = sectionPhotos[sIdx].length;
+  const el = document.getElementById(`photoCount-${sIdx}`);
+  if (!el) return;
+  const sMin = SECTIONS[sIdx].minPhotos !== undefined ? SECTIONS[sIdx].minPhotos : MIN_PHOTOS;
+  if (sMin === 0) {
+    el.textContent = count > 0 ? `${count} foto${count !== 1 ? 's' : ''} ✓` : 'opcional';
+    el.className = 'photo-count' + (count > 0 ? ' ok' : '');
+  } else {
+    el.textContent = count >= sMin ? `${count} fotos ✓` : `${count}/${sMin} mín.`;
+    el.className = 'photo-count' + (count >= sMin ? ' ok' : count > 0 ? ' warn' : '');
+  }
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────────────
+async function handleSubmit() {
+  if (!selectedPerson) {
+    alert('Selecione quem está fazendo o fechamento.');
+    document.getElementById('personGrid').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  // Verificar contagem obrigatória
+  const pao   = document.getElementById('countPao').value.trim();
+  const carne = document.getElementById('countCarne').value.trim();
+  if (pao === '' || carne === '') {
+    document.getElementById('countPao').classList.toggle('missing', pao === '');
+    document.getElementById('countCarne').classList.toggle('missing', carne === '');
+    document.getElementById('countPao').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alert('❌ Preencha a contagem de Pão e Carne antes de finalizar.');
+    return;
+  }
+  document.getElementById('countPao').classList.remove('missing');
+  document.getElementById('countCarne').classList.remove('missing');
+
+  // Verificar fotos — bloqueia se alguma seção obrigatória estiver incompleta
+  const sectionsWithFewPhotos = SECTIONS
+    .map((s, i) => {
+      const sMin = s.minPhotos !== undefined ? s.minPhotos : MIN_PHOTOS;
+      return { name: s.title, count: sectionPhotos[i].length, min: sMin, idx: i };
+    })
+    .filter(s => s.min > 0 && s.count < s.min);
+
+  if (sectionsWithFewPhotos.length > 0) {
+    const names = sectionsWithFewPhotos.map(s => `• ${s.name}: ${s.count}/${s.min} fotos`).join('\n');
+    alert(`❌ Não é possível finalizar.\n\nAdicione pelo menos 2 fotos em cada seção:\n\n${names}`);
+    document.getElementById(`photoArea-${sectionsWithFewPhotos[0].idx}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const done = Object.values(checked).filter(Boolean).length;
+  if (done < TOTAL) {
+    const notDone = TOTAL - done;
+    const proceed = confirm(`Ainda há ${notDone} item(ns) não marcado(s). Deseja finalizar mesmo assim?`);
+    if (!proceed) return;
+  }
+
+  const now = new Date();
+  const date = now.toLocaleDateString('pt-BR');
+  const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  const items = [];
+  SECTIONS.forEach((sec, sIdx) => {
+    sec.items.forEach((label, iIdx) => {
+      items.push({ section: sec.title, label, checked: checked[`${sIdx}-${iIdx}`] || false });
+    });
+  });
+
+  // Montar fotos por seção
+  const photos = {};
+  SECTIONS.forEach((sec, sIdx) => {
+    if (sectionPhotos[sIdx].length > 0) {
+      photos[sec.title] = sectionPhotos[sIdx];
+    }
+  });
+
+  const payload = {
+    type: 'fechamento',
+    date,
+    time,
+    responsible: selectedPerson,
+    observations: document.getElementById('observations').value.trim(),
+    contagem: { pao: pao, carne: carne },
+    items,
+    photos,
+  };
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('loadingMsg').textContent = 'Enviando dados e fotos...';
+  showOverlay('overlayLoading');
+
+  try {
+    const form = new FormData();
+    form.append('payload', JSON.stringify(payload));
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: form,
+    });
+    hideOverlay('overlayLoading');
+    showOverlay('overlaySuccess');
+  } catch (err) {
+    hideOverlay('overlayLoading');
+    document.getElementById('errorMsg').textContent = 'Sem conexão com a internet. Tente novamente.';
+    showOverlay('overlayError');
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+// ─── RESET ────────────────────────────────────────────────────────
+function resetApp() {
+  selectedPerson = null;
+  checked = {};
+  SECTIONS.forEach((_, i) => { sectionPhotos[i] = []; });
+  document.getElementById('observations').value = '';
+  document.getElementById('countPao').value = '';
+  document.getElementById('countCarne').value = '';
+  document.getElementById('submitBtn').disabled = false;
+  hideOverlay('overlaySuccess');
+  renderPersonPicker();
+  renderSections();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeError()  { hideOverlay('overlayError'); }
+function forceSuccess() { hideOverlay('overlayError'); showOverlay('overlaySuccess'); }
+
+function showOverlay(id) { document.getElementById(id).classList.add('active'); }
+function hideOverlay(id) { document.getElementById(id).classList.remove('active'); }
+
+init();
+</script>
+</body>
+</html>

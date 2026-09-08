@@ -282,11 +282,13 @@
     }
     .count-row:last-child { margin-bottom: 0; }
     .count-row label {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--text);
       flex: 1;
+      line-height: 1.3;
     }
+    .count-unit { color: var(--muted); font-weight: 500; font-size: 0.82rem; }
     .count-input {
       width: 110px;
       background: var(--card2);
@@ -442,12 +444,16 @@
   <div class="count-card">
     <div class="count-title">🔢 Contagem obrigatória</div>
     <div class="count-row">
-      <label>🍞 Pão</label>
-      <input type="number" id="countPao" class="count-input" placeholder="0" min="0">
+      <label>🍞 Pão <span class="count-unit">(un)</span></label>
+      <input type="number" id="countPao" class="count-input" placeholder="0" min="0" inputmode="numeric">
     </div>
     <div class="count-row">
-      <label>🥩 Carne</label>
-      <input type="number" id="countCarne" class="count-input" placeholder="0" min="0">
+      <label>🥩 Carne moldada <span class="count-unit">(un)</span></label>
+      <input type="number" id="countCarne" class="count-input" placeholder="0" min="0" inputmode="numeric">
+    </div>
+    <div class="count-row">
+      <label>⚖️ Carne não moldada <span class="count-unit">(kg)</span></label>
+      <input type="number" id="countCarneKg" class="count-input" placeholder="0,0" min="0" step="0.1" inputmode="decimal">
     </div>
   </div>
 
@@ -495,6 +501,27 @@
     <p id="errorMsg">Verifique a internet e tente novamente.</p>
     <button class="modal-btn" onclick="closeError()">Tentar novamente</button>
     <button class="modal-btn secondary" onclick="forceSuccess()">Registrar sem enviar</button>
+  </div>
+</div>
+
+<!-- VALIDATION -->
+<div class="overlay" id="overlayValidation">
+  <div class="modal">
+    <div class="ico">❌</div>
+    <h2 id="validationTitle">Campo obrigatório</h2>
+    <p id="validationMsg"></p>
+    <button class="modal-btn" onclick="closeValidation()">Entendido</button>
+  </div>
+</div>
+
+<!-- CONFIRM INCOMPLETE -->
+<div class="overlay" id="overlayConfirm">
+  <div class="modal">
+    <div class="ico">⚠️</div>
+    <h2>Itens não marcados</h2>
+    <p id="confirmMsg"></p>
+    <button class="modal-btn" onclick="confirmSubmit()">Finalizar mesmo assim</button>
+    <button class="modal-btn secondary" onclick="closeConfirm()">Voltar e completar</button>
   </div>
 </div>
 
@@ -778,26 +805,48 @@ function updatePhotoCount(sIdx) {
   }
 }
 
+// ─── VALIDAÇÃO / CONFIRM HELPERS ──────────────────────────────────
+function showValidation(title, msg, scrollEl) {
+  document.getElementById('validationTitle').textContent = title;
+  document.getElementById('validationMsg').textContent = msg;
+  showOverlay('overlayValidation');
+  if (scrollEl) setTimeout(() => scrollEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+}
+function closeValidation() { hideOverlay('overlayValidation'); }
+
+let _pendingSubmit = null;
+function showConfirm(msg, onConfirm) {
+  document.getElementById('confirmMsg').textContent = msg;
+  _pendingSubmit = onConfirm;
+  showOverlay('overlayConfirm');
+}
+function confirmSubmit() { hideOverlay('overlayConfirm'); if (_pendingSubmit) _pendingSubmit(); }
+function closeConfirm()  { hideOverlay('overlayConfirm'); _pendingSubmit = null; }
+
 // ─── SUBMIT ───────────────────────────────────────────────────────
 async function handleSubmit() {
   if (!selectedPerson) {
-    alert('Selecione quem está fazendo o fechamento.');
-    document.getElementById('personGrid').scrollIntoView({ behavior: 'smooth' });
+    showValidation('Selecione um responsável', 'Escolha quem está fazendo o fechamento antes de finalizar.',
+      document.getElementById('personGrid'));
     return;
   }
 
   // Verificar contagem obrigatória
-  const pao   = document.getElementById('countPao').value.trim();
-  const carne = document.getElementById('countCarne').value.trim();
-  if (pao === '' || carne === '') {
+  const pao     = document.getElementById('countPao').value.trim();
+  const carne   = document.getElementById('countCarne').value.trim();
+  const carneKg = document.getElementById('countCarneKg').value.trim();
+  if (pao === '' || carne === '' || carneKg === '') {
     document.getElementById('countPao').classList.toggle('missing', pao === '');
     document.getElementById('countCarne').classList.toggle('missing', carne === '');
-    document.getElementById('countPao').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    alert('❌ Preencha a contagem de Pão e Carne antes de finalizar.');
+    document.getElementById('countCarneKg').classList.toggle('missing', carneKg === '');
+    showValidation('Contagem obrigatória',
+      'Preencha o Pão, a Carne moldada e a Carne não moldada (kg) antes de finalizar. Se não houver, digite 0.',
+      document.getElementById('countPao'));
     return;
   }
   document.getElementById('countPao').classList.remove('missing');
   document.getElementById('countCarne').classList.remove('missing');
+  document.getElementById('countCarneKg').classList.remove('missing');
 
   // Verificar fotos — bloqueia se alguma seção obrigatória estiver incompleta
   const sectionsWithFewPhotos = SECTIONS
@@ -808,19 +857,27 @@ async function handleSubmit() {
     .filter(s => s.min > 0 && s.count < s.min);
 
   if (sectionsWithFewPhotos.length > 0) {
-    const names = sectionsWithFewPhotos.map(s => `• ${s.name}: ${s.count}/${s.min} fotos`).join('\n');
-    alert(`❌ Não é possível finalizar.\n\nAdicione pelo menos 2 fotos em cada seção:\n\n${names}`);
-    document.getElementById(`photoArea-${sectionsWithFewPhotos[0].idx}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const names = sectionsWithFewPhotos.map(s => `${s.name}: ${s.count}/${s.min} fotos`).join('\n');
+    showValidation('Fotos insuficientes',
+      `Adicione pelo menos 2 fotos em cada seção:\n\n${names}`,
+      document.getElementById(`photoArea-${sectionsWithFewPhotos[0].idx}`));
     return;
   }
 
   const done = Object.values(checked).filter(Boolean).length;
   if (done < TOTAL) {
     const notDone = TOTAL - done;
-    const proceed = confirm(`Ainda há ${notDone} item(ns) não marcado(s). Deseja finalizar mesmo assim?`);
-    if (!proceed) return;
+    showConfirm(`Ainda há ${notDone} item(ns) não marcado(s). Deseja finalizar mesmo assim?`, doSubmit);
+    return;
   }
 
+  doSubmit();
+}
+
+async function doSubmit() {
+  const pao     = document.getElementById('countPao').value.trim();
+  const carne   = document.getElementById('countCarne').value.trim();
+  const carneKg = document.getElementById('countCarneKg').value.trim();
   const now = new Date();
   const date = now.toLocaleDateString('pt-BR');
   const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -846,7 +903,7 @@ async function handleSubmit() {
     time,
     responsible: selectedPerson,
     observations: document.getElementById('observations').value.trim(),
-    contagem: { pao: pao, carne: carne },
+    contagem: { pao: pao, carne: carne, carneKg: carneKg },
     items,
     photos,
   };
@@ -886,6 +943,7 @@ function resetApp() {
   document.getElementById('observations').value = '';
   document.getElementById('countPao').value = '';
   document.getElementById('countCarne').value = '';
+  document.getElementById('countCarneKg').value = '';
   document.getElementById('submitBtn').disabled = false;
   hideOverlay('overlaySuccess');
   renderPersonPicker();

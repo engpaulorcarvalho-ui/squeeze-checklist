@@ -272,6 +272,7 @@
       text-transform: uppercase;
       letter-spacing: 0.8px;
       margin-bottom: 12px;
+      overflow: hidden;
     }
     .count-row {
       display: flex;
@@ -304,6 +305,146 @@
     }
     .count-input:focus { border-color: var(--orange); }
     .count-input.missing { border-color: var(--danger); }
+
+    /* ── MOTOBOYS ── */
+    .diaria-badge {
+      float: right;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(204,102,0,0.15);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .moto-none {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 2px 0 12px;
+      cursor: pointer;
+    }
+    .moto-none input { width: 18px; height: 18px; accent-color: var(--orange); flex-shrink: 0; }
+    .moto-card {
+      background: var(--card2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .moto-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+    .moto-nome {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 9px 11px;
+      outline: none;
+      font-family: inherit;
+    }
+    .moto-nome:focus { border-color: var(--orange); }
+    .moto-del {
+      width: 32px; height: 32px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      border: none;
+      background: #3a2222;
+      color: var(--danger);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .moto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .moto-field label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+    .moto-field input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px;
+      outline: none;
+      font-family: inherit;
+    }
+    .moto-field input:focus { border-color: var(--orange); }
+    .moto-just {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .moto-just-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--warn);
+      margin-bottom: 7px;
+      line-height: 1.3;
+    }
+    .moto-just select, .moto-detalhe {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.88rem;
+      padding: 9px 10px;
+      outline: none;
+      font-family: inherit;
+    }
+    .moto-just select:focus, .moto-detalhe:focus { border-color: var(--orange); }
+    .moto-detalhe { margin-top: 7px; }
+    .moto-result { margin-top: 9px; font-size: 0.82rem; line-height: 1.45; }
+    .moto-result .ok   { color: var(--success); }
+    .moto-result .pend { color: var(--warn); }
+    .moto-result .no   { color: var(--danger); }
+    .moto-add {
+      width: 100%;
+      background: transparent;
+      border: 1.5px dashed var(--orange);
+      color: var(--orange);
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .moto-add:active { opacity: 0.7; }
+    .moto-totals { margin-top: 12px; }
+    .moto-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 5px 0;
+    }
+    .moto-total-row b { color: var(--text); font-size: 0.95rem; }
+    .moto-total-row.grand {
+      border-top: 1.5px solid var(--border);
+      margin-top: 5px;
+      padding-top: 10px;
+    }
+    .moto-total-row.grand span { color: var(--text); font-weight: 600; }
+    .moto-total-row.grand b { color: var(--orange); font-size: 1.15rem; }
 
     /* ── OBSERVATIONS ── */
     .obs-card { background: var(--card); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
@@ -380,7 +521,7 @@
     }
     .modal .ico { font-size: 2.8rem; margin-bottom: 12px; line-height: 1; }
     .modal h2 { font-size: 1.2rem; margin-bottom: 8px; }
-    .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
+    .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; white-space: pre-line; }
     .modal-btn {
       display: block;
       width: 100%;
@@ -457,6 +598,27 @@
     </div>
   </div>
 
+  <!-- MOTOBOYS -->
+  <div class="count-card">
+    <div class="count-title">
+      🛵 Motoboys
+      <span class="diaria-badge" id="diariaBadge"></span>
+    </div>
+
+    <label class="moto-none">
+      <input type="checkbox" id="motoNenhum" onchange="toggleNenhumMotoboy()">
+      <span>Nenhum motoboy trabalhou hoje</span>
+    </label>
+
+    <datalist id="motoboysConhecidos"></datalist>
+
+    <div id="motoList"></div>
+
+    <button class="moto-add" id="motoAddBtn" onclick="addMotoboy()">+ Adicionar motoboy</button>
+
+    <div class="moto-totals" id="motoTotals"></div>
+  </div>
+
   <!-- OBSERVATIONS -->
   <div class="obs-card">
     <label>📝 Observações gerais</label>
@@ -527,8 +689,11 @@
 
 <script>
 // ─── CONFIGURAÇÃO ────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLBWFiiCsQDGYxAHU2W_-73UU0XrGWRYLrw5q2Pw-KAYkbl1XwIEeMBpa3dGkfQLj-/exec';
 const MIN_PHOTOS = 2;
+
+// Diária mínima do motoboy
+const DIARIA_SEMANA = 70;   // segunda a sexta
+const DIARIA_FDS    = 80;   // sábado e domingo
 
 // ─── PESSOAS ─────────────────────────────────────────────────────
 const PEOPLE = [
@@ -541,6 +706,56 @@ const PEOPLE = [
   { name: 'Paulo',   initials: 'Pa' },
   { name: 'Gabriel', initials: 'Ga' },
 ];
+
+// ─── MOTOBOYS CONHECIDOS ─────────────────────────────────────────
+// Aparecem como sugestão ao digitar. Nome novo pode ser digitado normalmente.
+const MOTOBOYS_CONHECIDOS = [
+  'Davi Alvim',
+  'Henrique Gomes',
+  'Hortência',
+  'Jeferson da Costa',
+  'Karine',
+  'Kenedy',
+  'Mateus MT',
+  'Mika',
+  'Robert',
+  'Rogério',
+  'Samuel',
+  'Vinícius',
+];
+
+// ─── JUSTIFICATIVAS DA DIÁRIA ────────────────────────────────────
+// "cobre: true"  → a culpa é da loja, a loja paga a diferença
+// "cobre: false" → o problema é do motoboy, a loja não cobre
+const JUSTIFICATIVAS = [
+  {
+    grupo: 'A loja cobre a diferença',
+    cobre: true,
+    opcoes: [
+      'Movimento baixo / poucos pedidos',
+      'Atraso na cozinha',
+      'Falta de produto no estoque',
+      'Sistema ou maquininha fora do ar',
+      'Dispensado mais cedo pela loja',
+      'Outro motivo da loja',
+    ],
+  },
+  {
+    grupo: 'A loja não cobre',
+    cobre: false,
+    opcoes: [
+      'Chegou atrasado',
+      'Saiu mais cedo por conta própria',
+      'Recusou entregas',
+      'Problema na moto do motoboy',
+      'Faltou parte do turno',
+      'Outro motivo do motoboy',
+    ],
+  },
+];
+
+const COBRE_MAP = {};
+JUSTIFICATIVAS.forEach(g => g.opcoes.forEach(o => { COBRE_MAP[o] = g.cobre; }));
 
 // ─── CHECKLIST ───────────────────────────────────────────────────
 const SECTIONS = [
@@ -617,6 +832,25 @@ const TOTAL = SECTIONS.reduce((s, sec) => s + sec.items.length, 0);
 let selectedPerson = null;
 let checked = {};
 let sectionPhotos = {}; // sIdx → [base64, ...]
+let motoboys = [];      // [{ id, nome, entregas, valor, justificativa, detalhe }]
+let motoSeq = 0;
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function num(v) {
+  const n = parseFloat(String(v == null ? '' : v).replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+}
+function round2(v) { return Math.round(v * 100) / 100; }
+function moeda(v) {
+  return num(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function ehFimDeSemana() {
+  const d = new Date().getDay(); // 0 = domingo, 6 = sábado
+  return d === 0 || d === 6;
+}
+function diariaMinima() {
+  return ehFimDeSemana() ? DIARIA_FDS : DIARIA_SEMANA;
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────
 function init() {
@@ -626,6 +860,14 @@ function init() {
   renderPersonPicker();
   renderSections();
   updateProgress();
+  renderDiariaBadge();
+  renderDatalistMotoboys();
+  addMotoboy(); // já começa com uma linha pronta
+}
+
+function renderDatalistMotoboys() {
+  document.getElementById('motoboysConhecidos').innerHTML =
+    MOTOBOYS_CONHECIDOS.map(n => `<option value="${n}"></option>`).join('');
 }
 
 function updateDateTime() {
@@ -633,6 +875,12 @@ function updateDateTime() {
   const d = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
   const t = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   document.getElementById('datetime').textContent = `${d}  •  ${t}`;
+}
+
+function renderDiariaBadge() {
+  const tipo = ehFimDeSemana() ? 'fim de semana' : 'dia de semana';
+  document.getElementById('diariaBadge').textContent =
+    `mín. ${moeda(diariaMinima())} · ${tipo}`;
 }
 
 // ─── PERSON PICKER ────────────────────────────────────────────────
@@ -741,7 +989,6 @@ async function handlePhotoInput(event, sIdx) {
     }
   }
 
-  // Reset input so same file can be added again if needed
   event.target.value = '';
   renderThumbs(sIdx);
   updatePhotoCount(sIdx);
@@ -805,6 +1052,202 @@ function updatePhotoCount(sIdx) {
   }
 }
 
+// ─── MOTOBOYS ─────────────────────────────────────────────────────
+function calcMotoboy(m) {
+  const min    = diariaMinima();
+  const valor  = round2(num(m.valor));
+  const abaixo = valor < min;
+  const cobre  = abaixo && !!m.justificativa && COBRE_MAP[m.justificativa] === true;
+  const complemento = cobre ? round2(min - valor) : 0;
+  return { min, valor, abaixo, cobre, complemento, total: round2(valor + complemento) };
+}
+
+function ehOutroMotivo(j) { return /^Outro motivo/.test(j || ''); }
+
+function montarSelectJustificativa(id, selecionada) {
+  const grupos = JUSTIFICATIVAS.map(g => {
+    const ops = g.opcoes.map(o =>
+      `<option value="${o}"${o === selecionada ? ' selected' : ''}>${o}</option>`
+    ).join('');
+    return `<optgroup label="${g.cobre ? '✅' : '🚫'} ${g.grupo}">${ops}</optgroup>`;
+  }).join('');
+  return `<select id="motoSel-${id}" onchange="onMotoInput('${id}','justificativa',this)">
+    <option value="">Selecione o motivo…</option>${grupos}</select>`;
+}
+
+function addMotoboy() {
+  motoSeq += 1;
+  motoboys.push({ id: 'm' + motoSeq, nome: '', entregas: '', valor: '', justificativa: '', detalhe: '' });
+  renderMotoboys();
+}
+
+function removeMotoboy(id) {
+  motoboys = motoboys.filter(m => m.id !== id);
+  renderMotoboys();
+}
+
+function renderMotoboys() {
+  const list = document.getElementById('motoList');
+  list.innerHTML = motoboys.map(m => `
+    <div class="moto-card" id="moto-${m.id}">
+      <div class="moto-head">
+        <input class="moto-nome" id="motoNome-${m.id}" placeholder="Nome do motoboy"
+               list="motoboysConhecidos" autocomplete="off"
+               value="${(m.nome || '').replace(/"/g, '&quot;')}"
+               oninput="onMotoInput('${m.id}','nome',this)">
+        <button class="moto-del" onclick="removeMotoboy('${m.id}')" title="Remover">×</button>
+      </div>
+      <div class="moto-grid">
+        <div class="moto-field">
+          <label>Entregas</label>
+          <input type="number" min="0" inputmode="numeric" placeholder="0"
+                 id="motoEnt-${m.id}" value="${m.entregas}"
+                 oninput="onMotoInput('${m.id}','entregas',this)">
+        </div>
+        <div class="moto-field">
+          <label>Valor (R$)</label>
+          <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"
+                 id="motoVal-${m.id}" value="${m.valor}"
+                 oninput="onMotoInput('${m.id}','valor',this)">
+        </div>
+      </div>
+      <div class="moto-just" id="motoJust-${m.id}" hidden>
+        <div class="moto-just-title">⚠️ Abaixo da diária mínima — qual foi o motivo?</div>
+        ${montarSelectJustificativa(m.id, m.justificativa)}
+        <input class="moto-detalhe" id="motoDet-${m.id}" hidden placeholder="Descreva o motivo"
+               value="${(m.detalhe || '').replace(/"/g, '&quot;')}"
+               oninput="onMotoInput('${m.id}','detalhe',this)">
+      </div>
+      <div class="moto-result" id="motoRes-${m.id}"></div>
+    </div>
+  `).join('');
+
+  motoboys.forEach(m => refreshMotoRow(m.id));
+  updateMotoTotals();
+}
+
+function onMotoInput(id, campo, el) {
+  const m = motoboys.find(x => x.id === id);
+  if (!m) return;
+  m[campo] = el.value;
+  refreshMotoRow(id);
+  updateMotoTotals();
+}
+
+function refreshMotoRow(id) {
+  const m = motoboys.find(x => x.id === id);
+  if (!m) return;
+
+  const c       = calcMotoboy(m);
+  const justEl  = document.getElementById(`motoJust-${id}`);
+  const detEl   = document.getElementById(`motoDet-${id}`);
+  const resEl   = document.getElementById(`motoRes-${id}`);
+  const temValor = String(m.valor).trim() !== '';
+
+  justEl.hidden = !(temValor && c.abaixo);
+  detEl.hidden  = justEl.hidden || !ehOutroMotivo(m.justificativa);
+
+  if (!temValor) { resEl.innerHTML = ''; return; }
+
+  if (!c.abaixo) {
+    resEl.innerHTML = `<span class="ok">✅ Atingiu a diária — a pagar <b>${moeda(c.total)}</b></span>`;
+  } else if (!m.justificativa) {
+    resEl.innerHTML = `<span class="pend">Faltam ${moeda(c.min - c.valor)} para a diária — escolha o motivo acima</span>`;
+  } else if (c.cobre) {
+    resEl.innerHTML = `<span class="ok">🏪 A loja cobre ${moeda(c.complemento)} → a pagar <b>${moeda(c.total)}</b></span>`;
+  } else {
+    resEl.innerHTML = `<span class="no">🚫 A loja não cobre → a pagar <b>${moeda(c.total)}</b></span>`;
+  }
+}
+
+function updateMotoTotals() {
+  const el = document.getElementById('motoTotals');
+  const nenhum = document.getElementById('motoNenhum').checked;
+
+  if (nenhum || motoboys.length === 0) { el.innerHTML = ''; return; }
+
+  let entregas = 0, bruto = 0, comp = 0, total = 0;
+  motoboys.forEach(m => {
+    const c = calcMotoboy(m);
+    entregas += num(m.entregas);
+    bruto    += c.valor;
+    comp     += c.complemento;
+    total    += c.total;
+  });
+
+  el.innerHTML = `
+    <div class="moto-total-row"><span>Entregas no dia</span><b>${entregas}</b></div>
+    <div class="moto-total-row"><span>Valor das entregas</span><b>${moeda(bruto)}</b></div>
+    <div class="moto-total-row"><span>Complemento da loja</span><b>${moeda(comp)}</b></div>
+    <div class="moto-total-row grand"><span>Total a pagar</span><b>${moeda(total)}</b></div>
+  `;
+}
+
+function toggleNenhumMotoboy() {
+  const nenhum = document.getElementById('motoNenhum').checked;
+  document.getElementById('motoList').hidden   = nenhum;
+  document.getElementById('motoAddBtn').hidden = nenhum;
+  updateMotoTotals();
+}
+
+function validarMotoboys() {
+  if (document.getElementById('motoNenhum').checked) return null;
+
+  if (motoboys.length === 0) {
+    return 'Adicione os motoboys que trabalharam hoje, ou marque "Nenhum motoboy trabalhou hoje".';
+  }
+
+  for (const m of motoboys) {
+    const nome = String(m.nome || '').trim();
+    if (!nome) return 'Preencha o nome de todos os motoboys.';
+    if (String(m.entregas).trim() === '') return `Informe a quantidade de entregas de ${nome}.`;
+    if (String(m.valor).trim() === '')    return `Informe o valor total de ${nome}.`;
+
+    const c = calcMotoboy(m);
+    if (c.abaixo && !m.justificativa) {
+      return `${nome} ficou abaixo da diária mínima de ${moeda(c.min)}.\n\nEscolha o motivo para o sistema saber se a loja cobre ou não.`;
+    }
+    if (c.abaixo && ehOutroMotivo(m.justificativa) && !String(m.detalhe || '').trim()) {
+      return `Descreva o motivo de ${nome}.`;
+    }
+  }
+  return null;
+}
+
+function montarDadosMotoboys() {
+  const nenhum = document.getElementById('motoNenhum').checked;
+
+  const lista = nenhum ? [] : motoboys.map(m => {
+    const c = calcMotoboy(m);
+    return {
+      nome: String(m.nome).trim(),
+      entregas: num(m.entregas),
+      valor: c.valor,
+      abaixoMinimo: c.abaixo,
+      justificativa: c.abaixo ? m.justificativa : '',
+      detalhe: c.abaixo && ehOutroMotivo(m.justificativa) ? String(m.detalhe).trim() : '',
+      lojaCobre: c.cobre,
+      complemento: c.complemento,
+      totalPagar: c.total,
+    };
+  });
+
+  const totais = lista.reduce((a, x) => ({
+    entregas:      a.entregas + x.entregas,
+    valorEntregas: round2(a.valorEntregas + x.valor),
+    complemento:   round2(a.complemento + x.complemento),
+    totalPagar:    round2(a.totalPagar + x.totalPagar),
+  }), { entregas: 0, valorEntregas: 0, complemento: 0, totalPagar: 0 });
+
+  return {
+    diariaMinima: diariaMinima(),
+    tipoDia: ehFimDeSemana() ? 'Fim de semana' : 'Dia de semana',
+    nenhum,
+    lista,
+    totais,
+  };
+}
+
 // ─── VALIDAÇÃO / CONFIRM HELPERS ──────────────────────────────────
 function showValidation(title, msg, scrollEl) {
   document.getElementById('validationTitle').textContent = title;
@@ -847,6 +1290,13 @@ async function handleSubmit() {
   document.getElementById('countPao').classList.remove('missing');
   document.getElementById('countCarne').classList.remove('missing');
   document.getElementById('countCarneKg').classList.remove('missing');
+
+  // Verificar motoboys
+  const erroMoto = validarMotoboys();
+  if (erroMoto) {
+    showValidation('Motoboys', erroMoto, document.getElementById('motoList'));
+    return;
+  }
 
   // Verificar fotos — bloqueia se alguma seção obrigatória estiver incompleta
   const sectionsWithFewPhotos = SECTIONS
@@ -904,6 +1354,7 @@ async function doSubmit() {
     responsible: selectedPerson,
     observations: document.getElementById('observations').value.trim(),
     contagem: { pao: pao, carne: carne, carneKg: carneKg },
+    motoboys: montarDadosMotoboys(),
     items,
     photos,
   };
@@ -944,6 +1395,13 @@ function resetApp() {
   document.getElementById('countPao').value = '';
   document.getElementById('countCarne').value = '';
   document.getElementById('countCarneKg').value = '';
+
+  motoboys = [];
+  document.getElementById('motoNenhum').checked = false;
+  toggleNenhumMotoboy();
+  addMotoboy();
+  renderDiariaBadge();
+
   document.getElementById('submitBtn').disabled = false;
   hideOverlay('overlaySuccess');
   renderPersonPicker();
